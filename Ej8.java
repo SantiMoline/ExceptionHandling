@@ -10,6 +10,11 @@ public class Ej8 {
         ”Valor final del finally: 44”
         ”Valor antes del return: 45”
         "45";
+    
+    Class Tres will print:
+        ”Valor final del finally: 2”
+        ”Excepcion en metodo()”
+        Also prints the result of this final line --> e.printStackTrace();
     */
 }
 
@@ -53,7 +58,8 @@ class Dos{
             valor = valor + 1;
             System.out.println(”Valor final del try: ” + valor) ;
         } catch ( NumberFormatException e ) {   
-            valor = valor + Integer.parseInt (”42”); System.out.println(”Valor final del catch: ” + valor) ;
+            valor = valor + Integer.parseInt (”42”);
+            System.out.println(”Valor final del catch: ” + valor) ;
         } finally {
            valor = valor + 1;
             System.out.println(”Valor final del finally: ” + valor) ;
@@ -67,7 +73,35 @@ class Dos{
         try{
             System.out.println (metodo());
         } catch(Exception e) {
-            System.err.println (”Excepcion en metodo ( ) ” );
+            System.err.println (”Excepcion en metodo() ” );
+            e.printStackTrace();
+        } 
+    }
+}
+
+class Tres{
+    private static int metodo( ) {
+        int valor=0;
+        try{
+            valor = valor + 1;
+            valor = valor + Integer.parseInt (”W”);
+            valor = valor + 1;
+            System.out.println(”Valor final del try: ” + valor);
+        } catch(NumberFormatException e) {
+            valor = valor + Integer.parseInt (”W”); System.out.println(”Valor final del catch: ” + valor);
+        } finally{
+            valor = valor + 1; 
+            System.out.println(”Valor final del finally:” + valor);
+        }
+        valor = valor + 1;
+        System.out.println(”Valor antes del return: ” + valor) ; return valor;
+    }
+ 
+    public static void main (String[] args) { 
+        try{
+            System.out.println( metodo ( ) );
+        } catch(Exception e) {
+            System.err.println(”Excepcion en metodo ( ) ” );
             e.printStackTrace();
         } 
     }
