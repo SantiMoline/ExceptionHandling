@@ -8,7 +8,9 @@ public class ArmorConstants {
     public static final double CONSOLE_CONSUMPTION = 0.35 * CONSUMPTION_MULTIPLICATOR;
     public static final double REACTOR_MAX_VALUE = Float.MAX_VALUE;
     public static final int INITIAL_HP = 100;
-    public static final int STANDARD_HARDNESS = 180;
+    public static final int STANDARD_HARDNESS = 80;
+    public static final int MIN_HARDNESS = 20;
+    public static final int MAX_HARDNESS = 100;
     public static final int BASIC_USE = 1;
     public static final int NORMAL_USE = 2;
     public static final int INTENSIVE_USE = 3;

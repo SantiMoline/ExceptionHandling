@@ -15,6 +15,12 @@ public class Device {
         this.consumption = consumption;
     }
 
+    //Copy constructor (to avoid reference trap)
+    public Device(Device source) {
+        setIsBroken(source.isBroken);
+        setConsumption(source.consumption);
+    }
+
 
     public boolean getIsBroken() {
         return this.isBroken;
@@ -32,7 +38,7 @@ public class Device {
         this.consumption = consumption;
     }
 
-    public double use (int intensity, int time) {
+    public double use(int intensity, int time) {
         return this.consumption * intensity * time;
     }
 
