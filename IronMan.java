@@ -24,7 +24,7 @@ public class IronMan {
                 armor.speakThroughSynthesizer(2);
             } catch (IllegalStateException e) {
                 System.out.println(e.getMessage());
-                System.out.println(e.getStackTrace());
+                armor.scanArmor();
             }
         }
     }
