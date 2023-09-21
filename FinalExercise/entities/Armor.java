@@ -22,19 +22,20 @@ public class Armor {
         setPrimaryColor(Color.RED);
         setSecundaryColor(Color.YELLOW);
         devices = new HashMap<>();
-        devices.put("console", new Device(CONSOLE_CONSUMPTION));
-        devices.put("synthesizer", new Device(SYNTHESIZER_CONSUMPTION));
-        devices.put("rightGlove", new Device(GLOVE_CONSUMPTION));
-        devices.put("leftGlove", new Device(GLOVE_CONSUMPTION));
-        devices.put("rightBoot", new Device(BOOT_CONSUMPTION));
-        devices.put("leftBoot", new Device(BOOT_CONSUMPTION));
+        setConsole(new Device(CONSOLE_CONSUMPTION));
+        setSynthesizer(new Device(SYNTHESIZER_CONSUMPTION));
+        setRightGlove(new Device(GLOVE_CONSUMPTION));
+        setLeftGlove(new Device(GLOVE_CONSUMPTION));
+        setRightBoot(new Device(BOOT_CONSUMPTION));
+        setLeftBoot(new Device(BOOT_CONSUMPTION));
+        setRadar(new Radar(RADAR_CONSUMPTION));
         setHardness(STANDARD_HARDNESS);
         setHealthPoints(INITIAL_HP);
         setReactor(REACTOR_MAX_VALUE);
     }
 
 
-    public Armor(Color primaryColor, Color secundaryColor, Device console, Device synthesizer, Device rightGlove, Device leftGlove, Device rightBoot, Device leftBoot, int hardness, int healthPoints, double reactor) {
+    public Armor(Color primaryColor, Color secundaryColor, Device console, Device synthesizer, Device rightGlove, Device leftGlove, Device rightBoot, Device leftBoot, Radar radar, int hardness, int healthPoints, double reactor) {
         setPrimaryColor(primaryColor);
         setSecundaryColor(secundaryColor);
         setConsole(console);
@@ -43,6 +44,7 @@ public class Armor {
         setLeftGlove(leftGlove);
         setRightBoot(rightBoot);
         setLeftBoot(leftBoot);
+        setRadar(radar);
         setHardness(hardness);
         setHealthPoints(healthPoints);
         setReactor(reactor);
@@ -83,7 +85,7 @@ public class Armor {
         if (synthesizer == null) {
             throw new IllegalArgumentException("Synthesizer cannot be null.");
         }
-        devices.put("syntheziser", new Device(synthesizer));
+        devices.put("synthesizer", new Device(synthesizer));
     }
 
     public Device getRightGlove() {
@@ -128,6 +130,17 @@ public class Armor {
             throw new IllegalArgumentException("Left boot cannot be null.");
         }
         devices.put("leftBoot", new Device(leftBoot));
+    }
+
+    public Radar getRadar() {
+        return new Radar((Radar) devices.get("radar"));
+    }
+
+    public void setRadar (Radar radar) {
+        if (radar == null) {
+            throw new IllegalArgumentException("Radar cannot be null.");
+        }
+        devices.put("radar", new Radar(radar));
     }
 
     public int getHardness() {
@@ -253,6 +266,15 @@ public class Armor {
         return updateReactor(energyConsumption);
     }
 
+    public boolean activateRadar(int duration) {
+        if (devices.get("radar").getIsBroken()) {
+            throw new IllegalStateException("The radar is broken. Cannot activate radar.");
+        }
+        double energyConsumption = devices.get("radar").use(BASIC_USE, duration);
+
+        return updateReactor(energyConsumption);
+    }
+
     public void showBatteryStatus() {
         System.out.printf("Battery status: + %.2f", this.reactor/REACTOR_MAX_VALUE * 100);
         System.out.println("%");
@@ -291,7 +313,6 @@ public class Armor {
     }
 
     public void scanArmor() {
-    
         for (Map.Entry<String, Device> entry : devices.entrySet()) {
             if (entry.getValue().getIsDestroyed()) {
                 System.out.println(entry.getKey() + " is destroyed. There is no way to fix it.");

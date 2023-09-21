@@ -1,4 +1,6 @@
+
 import FinalExercise.entities.Armor;
+
 
 public class IronMan {
     public static void main(String[] args) {
@@ -11,7 +13,7 @@ public class IronMan {
         armor.showBatteryStatus();
         System.out.println(armor.getReactor());
         armor.showReactorStatus();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 1; i++) {
             try {
                 System.out.println("Try: " + i);
                 System.out.println("Walkin...");
@@ -27,5 +29,10 @@ public class IronMan {
                 armor.scanArmor();
             }
         }
+
+        armor.activateRadar(10);
+        armor.getRadar().showObjectives();
+ 
+        
     }
 }
