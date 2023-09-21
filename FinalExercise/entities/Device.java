@@ -1,8 +1,10 @@
 package FinalExercise.entities;
 
+import static FinalExercise.utilities.ArmorConstants.*;
+
 public class Device {
-    protected boolean isBroken;
-    protected Double consumption;
+    private boolean isBroken;
+    private Double consumption;
 
 
     public Device(Double consumption) {
@@ -39,7 +41,12 @@ public class Device {
     }
 
     public double use(int intensity, int time) {
+        setIsBroken(breakDown());
         return this.consumption * intensity * time;
+    }
+
+    private boolean breakDown() {
+        return  ((Math.random() * 100) <= BREAKDOWN_PROB);
     }
 
 

@@ -2,6 +2,8 @@ package FinalExercise.entities;
 
 import static FinalExercise.utilities.ArmorConstants.*;
 
+import java.util.Random;
+
 import FinalExercise.enums.Color;
 
 public class Armor {
@@ -163,10 +165,6 @@ public class Armor {
         this.reactor = reactor;
     }
 
-    private double calculateConsumption(Device device, int intensity, int duration) {
-        return device.use(intensity, duration);
-    }
-
     private boolean checkEnergy(double consumption) {
         return this.reactor >= consumption;
     }
@@ -179,57 +177,105 @@ public class Armor {
         return false;
     }
 
-    public boolean walk(int duration) {
-        double energyConsumption = calculateConsumption(rightBoot, BASIC_USE, duration);
-        energyConsumption += calculateConsumption(leftBoot, BASIC_USE, duration);
+    private boolean areBootsBroken() {
+        return leftBoot.getIsBroken() || rightBoot.getIsBroken();
+    }
+
+    private boolean areGlovesBroken() {
+        return rightGlove.getIsBroken() || leftGlove.getIsBroken();
+    }
+
+    public boolean walk(int duration) throws IllegalStateException {
+        if (areBootsBroken()) {
+            throw new IllegalStateException("At least one boot is broken. Cannot perform walk action.");
+        }
+        double energyConsumption = rightBoot.use(BASIC_USE, duration);
+        energyConsumption += leftBoot.use(BASIC_USE, duration);
         
         return updateReactor(energyConsumption);
     }
 
     public boolean run(int duration) {
-        double energyConsumption = calculateConsumption(rightBoot, NORMAL_USE, duration);
-        energyConsumption += calculateConsumption(leftBoot, NORMAL_USE, duration);
+        if (areBootsBroken()) {
+            throw new IllegalStateException("At least one boot is broken. Cannot perform run action.");
+        }
+        double energyConsumption = rightBoot.use(NORMAL_USE, duration);
+        energyConsumption += leftBoot.use(NORMAL_USE, duration);
 
         return updateReactor(energyConsumption);
     }
 
     public boolean propel(int duration) {
-        double energyConsumption = calculateConsumption(rightBoot, INTENSIVE_USE, duration);
-        energyConsumption += calculateConsumption(leftBoot, INTENSIVE_USE, duration);
+        if (areBootsBroken()) {
+            throw new IllegalStateException("At least one boot is broken. Cannot perform propel action.");
+        }
+        double energyConsumption = rightBoot.use(INTENSIVE_USE, duration);
+        energyConsumption += leftBoot.use(INTENSIVE_USE, duration);
 
         return updateReactor(energyConsumption);
     }
 
     public boolean fly(int duration) {
-        double energyConsumption = calculateConsumption(leftBoot, INTENSIVE_USE, duration);
-        energyConsumption += calculateConsumption(rightBoot, INTENSIVE_USE, duration);
-        energyConsumption += calculateConsumption(rightGlove, NORMAL_USE, duration);
-        energyConsumption += calculateConsumption(leftGlove, NORMAL_USE, duration);
+        if (areBootsBroken() || areGlovesBroken()) {
+            throw new IllegalStateException("At least one boot or glove is broken. Cannot perform fly action.");
+        }
+        double energyConsumption = leftBoot.use(INTENSIVE_USE, duration);
+        energyConsumption += rightBoot.use(INTENSIVE_USE, duration);
+        energyConsumption += rightGlove.use(NORMAL_USE, duration);
+        energyConsumption += leftGlove.use(NORMAL_USE, duration);
 
         return updateReactor(energyConsumption);
     }
 
     public boolean shootFromGloves(int duration) {
-        double energyConsumption = calculateConsumption(rightGlove, INTENSIVE_USE, duration);
-        energyConsumption += calculateConsumption(leftGlove, INTENSIVE_USE, duration);
+        if (areGlovesBroken()) {
+            throw new IllegalStateException("At least one glove is broken. Cannot perform shoot action.");
+        }
+        double energyConsumption = rightGlove.use(INTENSIVE_USE, duration);
+        energyConsumption += leftGlove.use(INTENSIVE_USE, duration);
 
         return updateReactor(energyConsumption);
     }
 
     public boolean readConsole(int duration) {
-        double energyConsumption = calculateConsumption(console, BASIC_USE, duration);
+        if (console.getIsBroken()) {
+            throw new IllegalStateException("The console is broken. Cannot perform read action.");
+        }
+        double energyConsumption = console.use(BASIC_USE, duration);
 
         return updateReactor(energyConsumption);
     }
 
     public boolean speakThroughSynthesizer(int duration) {
-        double energyConsumption = calculateConsumption(synthesizer, BASIC_USE, duration);
+        if (synthesizer.getIsBroken()) {
+            throw new IllegalStateException("The synthesizer is broken. Cannot perform speak action.");
+        }
+        double energyConsumption = synthesizer.use(BASIC_USE, duration);
 
         return updateReactor(energyConsumption);
     }
 
+    public void showBatteryStatus() {
+        System.out.printf("Battery status: + %.2f", this.reactor/REACTOR_MAX_VALUE * 100);
+        System.out.println("%");
+    }
 
+    public void showReactorStatus() {
+        System.out.println("--------------------------------------");
+        System.out.printf("Energy remaining expressed in KiloWatts/Hour: %.2f kWh ", (this.reactor / ENERGY_TO_KWH));
+        System.out.printf("\nExpressed in MegaJoules: %.2f MJ", (this.reactor  / ENERGY_TO_MJ));
+        System.out.println("\n--------------------------------------");
+    }
 
+    private boolean repair() {
+        Random r = new Random();
+        return r.nextDouble(100) <= REPAIR_PROB ;
+    }
+
+    private boolean destroy() {
+        Random r = new Random();
+        return r.nextDouble(100) <= DESTROY_PROB ;
+    }
 
 
 }
