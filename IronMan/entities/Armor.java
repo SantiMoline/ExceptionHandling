@@ -1,12 +1,12 @@
-package FinalExercise.entities;
+package IronMan.entities;
 
-import static FinalExercise.utilities.ArmorConstants.*;
+import static IronMan.utilities.ArmorConstants.*;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import FinalExercise.enums.Color;
+import IronMan.enums.Color;
 
 public class Armor {
     private Color primaryColor;

@@ -1,5 +1,5 @@
 
-import FinalExercise.entities.Armor;
+import IronMan.entities.Armor;
 
 
 public class IronMan {

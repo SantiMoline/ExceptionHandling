@@ -1,7 +1,8 @@
-package FinalExercise.entities;
+package IronMan.entities;
+
+import static IronMan.utilities.RadarConstants.*;
 
 import java.util.ArrayList;
-import static FinalExercise.utilities.RadarConstants.*;
 
 public class Radar extends Device {
     ArrayList<Objective> objectives;

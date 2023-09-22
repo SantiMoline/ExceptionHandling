@@ -1,4 +1,4 @@
-package FinalExercise.entities;
+package IronMan.entities;
 
 import java.util.Random;
 

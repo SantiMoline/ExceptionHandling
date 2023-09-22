@@ -1,4 +1,4 @@
-package FinalExercise.utilities;
+package IronMan.utilities;
 
 public class ArmorConstants {
     private static final double CONSUMPTION_MULTIPLICATOR = Math.pow(10, 35);

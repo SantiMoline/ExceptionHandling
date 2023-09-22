@@ -1,6 +1,6 @@
-package FinalExercise.entities;
+package IronMan.entities;
 
-import static FinalExercise.utilities.ArmorConstants.*;
+import static IronMan.utilities.ArmorConstants.*;
 
 public class Device {
     private boolean isBroken;

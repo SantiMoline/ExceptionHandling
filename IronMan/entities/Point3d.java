@@ -1,7 +1,8 @@
-package FinalExercise.entities;
+package IronMan.entities;
+
+import static IronMan.utilities.RadarConstants.*;
 
 import java.util.Random;
-import static FinalExercise.utilities.RadarConstants.*;
 
 public class Point3d {
     private double x;
