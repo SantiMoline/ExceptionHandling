@@ -335,5 +335,9 @@ public class Armor {
         }
     }
 
+    public void showObjectives() {
+        getRadar().showObjectives();
+    }
+
 
 }

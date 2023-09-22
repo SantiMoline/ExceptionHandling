@@ -31,7 +31,7 @@ public class IronMan {
         }
 
         armor.activateRadar(10);
-        armor.getRadar().showObjectives();
+        armor.showObjectives();
  
 
     }
