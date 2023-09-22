@@ -16,7 +16,6 @@ public class Armor {
     private int healthPoints;
     private double reactor;
 
-    
 
     public Armor() {
         setPrimaryColor(Color.RED);
@@ -33,7 +32,6 @@ public class Armor {
         setHealthPoints(INITIAL_HP);
         setReactor(REACTOR_MAX_VALUE);
     }
-
 
     public Armor(Color primaryColor, Color secundaryColor, Device console, Device synthesizer, Device rightGlove, Device leftGlove, Device rightBoot, Device leftBoot, Radar radar, int hardness, int healthPoints, double reactor) {
         setPrimaryColor(primaryColor);
@@ -67,80 +65,80 @@ public class Armor {
     }
 
     public Device getConsole() {
-        return new Device(devices.get("console"));
+        return new Device(devices.get(KEY_CONSOLE));
     }
 
     public void setConsole(Device console) {
         if (console == null) {
             throw new IllegalArgumentException("Console cannot be null.");
         }
-        devices.put("console", new Device(console));
+        devices.put(KEY_CONSOLE, new Device(console));
     }
 
     public Device getSynthesizer() {
-        return  new Device(devices.get("synthesizer"));
+        return  new Device(devices.get(KEY_SYNTHESIZER));
     }
 
     public void setSynthesizer(Device synthesizer) {
         if (synthesizer == null) {
             throw new IllegalArgumentException("Synthesizer cannot be null.");
         }
-        devices.put("synthesizer", new Device(synthesizer));
+        devices.put(KEY_SYNTHESIZER, new Device(synthesizer));
     }
 
     public Device getRightGlove() {
-        return new Device(devices.get("rightGlove"));
+        return new Device(devices.get(KEY_RIGHTGLOVE));
     }
 
     public void setRightGlove(Device rightGlove) {
         if (rightGlove == null) {
             throw new IllegalArgumentException("Right glove cannot be null.");
         }
-        devices.put("rightGlove", new Device(rightGlove));
+        devices.put(KEY_RIGHTGLOVE, new Device(rightGlove));
     }
 
     public Device getLeftGlove() {
-        return new Device(devices.get("leftGlove"));
+        return new Device(devices.get(KEY_LEFTGLOVE));
     }
 
     public void setLeftGlove(Device leftGlove) {
         if (leftGlove == null) {
             throw new IllegalArgumentException("Left glove cannot be null.");
         }
-        devices.put("leftGlove", new Device(leftGlove));
+        devices.put(KEY_LEFTGLOVE, new Device(leftGlove));
     }
 
     public Device getRightBoot() {
-        return new Device(devices.get("rightBoot"));
+        return new Device(devices.get(KEY_RIGHTBOOT));
     }
 
     public void setRightBoot(Device rightBoot) {
         if (rightBoot == null) {
             throw new IllegalArgumentException("Right boot cannot be null.");
         }
-        devices.put("rightBoot", new Device(rightBoot));
+        devices.put(KEY_RIGHTBOOT, new Device(rightBoot));
     }
 
     public Device getLeftBoot() {
-        return new Device(devices.get("leftBoot"));
+        return new Device(devices.get(KEY_LEFTBOOT));
     }
 
     public void setLeftBoot(Device leftBoot) {
         if (leftBoot == null) {
             throw new IllegalArgumentException("Left boot cannot be null.");
         }
-        devices.put("leftBoot", new Device(leftBoot));
+        devices.put(KEY_LEFTBOOT, new Device(leftBoot));
     }
 
     public Radar getRadar() {
-        return new Radar((Radar) devices.get("radar"));
+        return new Radar((Radar) devices.get(KEY_RADAR));
     }
 
     public void setRadar (Radar radar) {
         if (radar == null) {
             throw new IllegalArgumentException("Radar cannot be null.");
         }
-        devices.put("radar", new Radar(radar));
+        devices.put(KEY_RADAR, new Radar(radar));
     }
 
     public int getHardness() {
@@ -176,101 +174,108 @@ public class Armor {
         this.reactor = reactor;
     }
 
-    private boolean checkEnergy(double consumption) {
+    private boolean hasEnoughEnergy(double consumption) {
         return this.reactor >= consumption;
     }
 
-    private boolean updateReactor(double consumption) {
-        if (checkEnergy(consumption)) {
-            setReactor(getReactor() - consumption);
-            return true;
+    private boolean updateReactor(double consumption) throws IllegalStateException {
+        if (!hasEnoughEnergy(consumption)) {
+            throw new IllegalStateException("There is not enough energy to execute the action.");
+        }
+        setReactor(getReactor() - consumption);
+        return true;
+    }
+
+    public boolean checkDeviceState(String key) throws IllegalStateException {
+        if (devices.get(key).getIsBroken() || devices.get(key).getIsDestroyed()) {
+            throw new IllegalStateException("The " + key + " is broken. Cannot activate " + key + ".");
         }
         return false;
     }
 
-    private boolean areBootsBroken() {
-        return devices.get("leftBoot").getIsBroken() || devices.get("rightBoot").getIsBroken();
+    private boolean areBootsBroken() throws IllegalStateException {
+        return checkDeviceState(KEY_LEFTBOOT) || checkDeviceState(KEY_RIGHTBOOT);
     }
 
-    private boolean areGlovesBroken() {
-        return devices.get("rightGlove").getIsBroken() || devices.get("leftGlove").getIsBroken();
+    private boolean areGlovesBroken() throws IllegalStateException {
+        return devices.get(KEY_RIGHTGLOVE).getIsBroken() || devices.get(KEY_LEFTGLOVE).getIsBroken();
     }
 
     public boolean walk(int duration) throws IllegalStateException {
         if (areBootsBroken()) {
             throw new IllegalStateException("At least one boot is broken. Cannot perform walk action.");
         }
-        double energyConsumption = devices.get("rightBoot").use(BASIC_USE, duration);
-        energyConsumption += devices.get("leftBoot").use(BASIC_USE, duration);
+        double energyConsumption = devices.get(KEY_RIGHTBOOT).use(BASIC_USE, duration);
+        energyConsumption += devices.get(KEY_LEFTBOOT).use(BASIC_USE, duration);
         
         return updateReactor(energyConsumption);
     }
 
-    public boolean run(int duration) {
+    public boolean run(int duration) throws IllegalStateException {
         if (areBootsBroken()) {
             throw new IllegalStateException("At least one boot is broken. Cannot perform run action.");
         }
-        double energyConsumption = devices.get("rightBoot").use(NORMAL_USE, duration);
-        energyConsumption += devices.get("leftBoot").use(NORMAL_USE, duration);
+        double energyConsumption = devices.get(KEY_RIGHTBOOT).use(NORMAL_USE, duration);
+        energyConsumption += devices.get(KEY_LEFTBOOT).use(NORMAL_USE, duration);
 
         return updateReactor(energyConsumption);
     }
 
-    public boolean propel(int duration) {
+    public boolean propel(int duration) throws IllegalStateException {
         if (areBootsBroken()) {
             throw new IllegalStateException("At least one boot is broken. Cannot perform propel action.");
         }
-        double energyConsumption = devices.get("rightBoot").use(INTENSIVE_USE, duration);
-        energyConsumption += devices.get("leftBoot").use(INTENSIVE_USE, duration);
+        double energyConsumption = devices.get(KEY_RIGHTBOOT).use(INTENSIVE_USE, duration);
+        energyConsumption += devices.get(KEY_LEFTBOOT).use(INTENSIVE_USE, duration);
 
         return updateReactor(energyConsumption);
     }
 
-    public boolean fly(int duration) {
+    public boolean fly(int duration) throws IllegalStateException {
         if (areBootsBroken() || areGlovesBroken()) {
             throw new IllegalStateException("At least one boot or glove is broken. Cannot perform fly action.");
         }
-        double energyConsumption = devices.get("leftBoot").use(INTENSIVE_USE, duration);
-        energyConsumption += devices.get("rightBoot").use(INTENSIVE_USE, duration);
-        energyConsumption += devices.get("rightGlove").use(NORMAL_USE, duration);
-        energyConsumption += devices.get("leftGlove").use(NORMAL_USE, duration);
+        double energyConsumption = devices.get(KEY_LEFTBOOT).use(INTENSIVE_USE, duration);
+        energyConsumption += devices.get(KEY_RIGHTBOOT).use(INTENSIVE_USE, duration);
+        energyConsumption += devices.get(KEY_RIGHTGLOVE).use(NORMAL_USE, duration);
+        energyConsumption += devices.get(KEY_LEFTGLOVE).use(NORMAL_USE, duration);
 
         return updateReactor(energyConsumption);
     }
 
-    public boolean shootFromGloves(int duration) {
+    public boolean shootFromGloves(int duration) throws IllegalStateException {
         if (areGlovesBroken()) {
             throw new IllegalStateException("At least one glove is broken. Cannot perform shoot action.");
         }
-        double energyConsumption = devices.get("rightGlove").use(INTENSIVE_USE, duration);
-        energyConsumption += devices.get("leftGlove").use(INTENSIVE_USE, duration);
+        double energyConsumption = devices.get(KEY_RIGHTGLOVE).use(INTENSIVE_USE, duration);
+        energyConsumption += devices.get(KEY_LEFTGLOVE).use(INTENSIVE_USE, duration);
 
         return updateReactor(energyConsumption);
     }
 
-    public boolean readConsole(int duration) {
+    public boolean readConsole(int duration) throws IllegalStateException {
         if (devices.get("console").getIsBroken()) {
             throw new IllegalStateException("The console is broken. Cannot perform read action.");
         }
-        double energyConsumption = devices.get("console").use(BASIC_USE, duration);
+        double energyConsumption = devices.get(KEY_CONSOLE).use(BASIC_USE, duration);
 
         return updateReactor(energyConsumption);
     }
 
-    public boolean speakThroughSynthesizer(int duration) {
-        if (devices.get("synthesizer").getIsBroken()) {
+    public boolean speakThroughSynthesizer(int duration) throws IllegalStateException {
+        if (devices.get(KEY_SYNTHESIZER).getIsBroken()) {
             throw new IllegalStateException("The synthesizer is broken. Cannot perform speak action.");
         }
-        double energyConsumption = devices.get("synthesizer").use(BASIC_USE, duration);
+        double energyConsumption = devices.get(KEY_SYNTHESIZER).use(BASIC_USE, duration);
 
         return updateReactor(energyConsumption);
     }
 
-    public boolean activateRadar(int duration) {
-        if (devices.get("radar").getIsBroken()) {
+    public boolean activateRadar(int duration) throws IllegalStateException {
+        if (devices.get(KEY_RADAR).getIsBroken()) {
             throw new IllegalStateException("The radar is broken. Cannot activate radar.");
         }
-        double energyConsumption = devices.get("radar").use(BASIC_USE, duration);
+        double energyConsumption = devices.get(KEY_RADAR).use(BASIC_USE, duration);
 
         return updateReactor(energyConsumption);
     }
@@ -297,7 +302,9 @@ public class Armor {
         return r.nextDouble(100) <= DESTROY_PROB ;
     }
 
-    private boolean repair(Device device) {
+    private boolean repair(Device device) throws IllegalStateException {
+        if (device.getIsDestroyed())
+            throw new IllegalStateException("The device is destroyed. There is no way to fix it.");
         do {
             if (repairSucces()) {
                 device.setIsBroken(false);

@@ -20,5 +20,12 @@ public class ArmorConstants {
     public static final double BREAKDOWN_PROB = 30;
     public static final double REPAIR_PROB = 40;
     public static final double DESTROY_PROB = 30;
+    public static final String KEY_RADAR = "radar";
+    public static final String KEY_RIGHTBOOT = "rightBoot";
+    public static final String KEY_LEFTBOOT = "leftBoot";
+    public static final String KEY_RIGHTGLOVE = "rightGlove";
+    public static final String KEY_LEFTGLOVE = "leftGlove";
+    public static final String KEY_CONSOLE = "console";
+    public static final String KEY_SYNTHESIZER = "synthesizer";
 
 }
