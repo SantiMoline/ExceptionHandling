@@ -268,33 +268,32 @@ public class Armor {
     private boolean repair(Device device) throws IllegalStateException {
         if (device.isDestroyed())
             throw new IllegalStateException("The device is destroyed. There is no way to fix it.");
-        do {
+        
+        while (device.isBroken()) {
+            System.out.print("Trying to repair it...");
             if (repairSucces()) {
                 device.repair();
                 break;
             }
             if (destroyOcurrance()) {
                 device.destroy();
-                System.out.println("The device has been destroyed while attempting to fix it.");
                 return false;
             }
-        } while (device.isBroken());
-        
+        }
         return true;
     }
 
     public void scanArmor() {
         for (Map.Entry<String, Device> entry : devices.entrySet()) {
-            if (entry.getValue().isDestroyed()) {
-                System.out.println(entry.getKey() + " is destroyed. There is no way to fix it.");
+            System.out.print("\n" + entry.getKey() + " is " + entry.getValue().showStatus() + ".");
+            try {
+                if (repair(entry.getValue()))
+                    System.out.println("The device has been succesfully repaired!!!");
+                else 
+                    System.out.println("The device has been destroyed while attempting to fix it.");
+            } catch (IllegalStateException e) {
+                System.out.println(e.getMessage());
                 continue;
-            }
-            if (entry.getValue().isBroken()) {
-                System.out.println(entry.getKey() + " is broken.");
-                System.out.println("Trying to repair it...");
-                if (repair(entry.getValue())) {
-                    System.out.println("The device has been succesfully repaired");
-                }
             }
         }
     }

@@ -76,4 +76,8 @@ public class Device {
     public void destroy() {
         setStatus(DeviceStatus.DESTROYED);
     }
+
+    public String showStatus() {
+        return getStatus().toString();
+    }
 }
