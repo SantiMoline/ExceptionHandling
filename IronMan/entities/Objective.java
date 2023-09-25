@@ -5,7 +5,7 @@ import java.util.Random;
 public class Objective {
     private Point3d coordinates;
     private boolean hostility;
-    private int resistance;
+    private double resistance;
 
 
     public Objective() {
@@ -15,7 +15,7 @@ public class Objective {
         resistance = r.nextInt(101) + 1;
     }
 
-    public Objective(Point3d coordinates, boolean hostility, int resistance) {
+    public Objective(Point3d coordinates, boolean hostility, double resistance) {
         this.coordinates = coordinates;
         this.hostility = hostility;
         this.resistance = resistance;
@@ -38,14 +38,24 @@ public class Objective {
         this.hostility = hostility;
     }
 
-    public int getResistance() {
+    public double getResistance() {
         return this.resistance;
     }
 
-    public void setResistencia(int resistance) {
+    public void setResistance(double resistance) {
         this.resistance = resistance;
     }
 
+    public void sufferDamage(double dmg) {
+        if (dmg < 0 ) 
+            throw new IllegalArgumentException("Incoming damage cannot be less than zero.");
+        updateResistance(dmg);
+    }
+
+    private void updateResistance(double dmg) {
+        double remainingResistance =  getResistance() < dmg ? 0 : getResistance() - dmg;
+        setResistance(remainingResistance);
+    } 
 
     @Override
     public String toString() {

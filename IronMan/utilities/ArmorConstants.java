@@ -27,5 +27,9 @@ public class ArmorConstants {
     public static final String KEY_LEFTGLOVE = "leftGlove";
     public static final String KEY_CONSOLE = "console";
     public static final String KEY_SYNTHESIZER = "synthesizer";
+    public static final double GLOVES_DMG = 5000;
+    public static final double GLOVES_RANGE = 5000;
+    public static final double FLYING_SPEED = 3000;
+    public static final double SAFE_DISTANCE = 10000;
 
 }

@@ -2,6 +2,7 @@ package IronMan.entities;
 
 import static IronMan.utilities.ArmorConstants.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -175,7 +176,7 @@ public class Armor {
     }
 
     private boolean hasEnoughEnergy(double consumption) {
-        return this.reactor >= consumption;
+        return this.reactor >= consumption + 0.1 * REACTOR_MAX_VALUE; //Always leaves 10% of battery to scape.
     }
 
     private boolean updateReactor(double consumption) throws IllegalStateException {
@@ -219,10 +220,33 @@ public class Armor {
     }
 
     public boolean shootFromGloves(int duration) throws IllegalStateException {
-        double energyConsumption = devices.get(KEY_RIGHTGLOVE).use(INTENSIVE_USE, duration);
-        energyConsumption += devices.get(KEY_LEFTGLOVE).use(INTENSIVE_USE, duration);
 
-        return updateReactor(energyConsumption);
+        return rightGloveShot(duration) || leftGloveShot(duration);
+        // double energyConsumption = devices.get(KEY_RIGHTGLOVE).use(INTENSIVE_USE, duration);
+        // energyConsumption += devices.get(KEY_LEFTGLOVE).use(INTENSIVE_USE, duration);
+        // return updateReactor(energyConsumption);
+    }
+
+    public boolean rightGloveShot(int duration) throws IllegalStateException {
+        double energyConsumption = devices.get(KEY_RIGHTGLOVE).use(INTENSIVE_USE, duration);
+        try {
+            return updateReactor(energyConsumption);
+        } catch (IllegalStateException e) {
+            e.getMessage();
+            System.out.println("Energy level is not safe to stay in the battlefield. Initializing escape....");
+            return escape();
+        }
+    }
+
+    public boolean leftGloveShot(int duration) throws IllegalStateException {
+        double energyConsumption = devices.get(KEY_LEFTGLOVE).use(INTENSIVE_USE, duration);
+        try {
+            return updateReactor(energyConsumption);
+        } catch (IllegalStateException e) {
+            e.getMessage();
+            System.out.println("Energy level is not safe to stay in the battlefield. Initializing escape....");
+            return escape();
+        }
     }
 
     public boolean readConsole(int duration) throws IllegalStateException {
@@ -286,10 +310,11 @@ public class Armor {
 
     public void scanArmor() {
         for (Map.Entry<String, Device> entry : devices.entrySet()) {
-            System.out.print("\n" + entry.getKey() + " is " + entry.getValue().showStatus() + ".");
-            if (entry.getValue().isOk()) continue;
+            Device currentDevice = entry.getValue();
+            System.out.print("\n" + entry.getKey() + " is " + currentDevice.showStatus() + ".");
+            if (currentDevice.isOk()) continue;
             try {
-                if (repair(entry.getValue()))
+                if (repair(currentDevice))
                     System.out.println("The device has been succesfully repaired!!!");
                 else 
                     System.out.println("The device has been destroyed while attempting to fix it.");
@@ -302,6 +327,66 @@ public class Armor {
 
     public void showObjectives() {
         getRadar().showObjectives();
+    }
+
+    public void engageEnemies() {
+        ArrayList<Objective> enemies = getRadar().getHostileObjectives();
+        for (Objective objective : enemies) {
+            if (objective.getHostility()) {
+                attackEnemy(objective);
+            }
+        }
+    }
+
+    public boolean attackEnemy(Objective enemy) {
+        if (isInRange(enemy)){
+        while(enemy.getResistance() > 0) {
+            try {
+                double dmg = calculateDamage(enemy);
+                enemy.sufferDamage(dmg);
+            } catch (IllegalStateException e) {
+                System.out.println(e.getMessage());
+                scanArmor();
+            }
+        }
+            return true;
+        }
+        return false;
+    }
+
+    private double calculateDamage(Objective enemy) throws IllegalStateException {
+        double dmg = GLOVES_DMG / getRadar().calculateDistance(enemy);
+        int duration = (int) Math.ceil(enemy.getResistance() / dmg) ;
+        double finalDmg = 0;
+        
+        if (rightGloveShot(duration/2)) {
+            finalDmg += dmg;
+        }
+        if (leftGloveShot(duration/2)) {
+            dmg += GLOVES_DMG / dmg;
+        }
+        return finalDmg;
+    }
+
+    private boolean isInRange(Objective enemy) {
+        return getRadar().calculateDistance(enemy) <= GLOVES_RANGE;
+    }
+
+    public boolean escape() {
+        int duration = (int) Math.ceil(SAFE_DISTANCE/FLYING_SPEED);
+        double energyConsumption = devices.get(KEY_LEFTBOOT).use(INTENSIVE_USE, duration);
+        energyConsumption += devices.get(KEY_RIGHTBOOT).use(INTENSIVE_USE, duration);
+        energyConsumption += devices.get(KEY_RIGHTGLOVE).use(NORMAL_USE, duration);
+        energyConsumption += devices.get(KEY_LEFTGLOVE).use(NORMAL_USE, duration);
+        try {
+            setReactor(getReactor() - energyConsumption);
+            System.out.println("Flew away succesfully.");
+            showBatteryStatus();
+            return true;
+        } catch (IllegalArgumentException e) {
+            System.out.println("There is no energy left to fly away. You're in real trouble...");
+            return false;
+        }
     }
 
 
