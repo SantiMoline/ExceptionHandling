@@ -2,38 +2,37 @@ package IronMan.entities;
 
 import static IronMan.utilities.ArmorConstants.*;
 
+import IronMan.enums.DeviceStatus;
+
 public class Device {
-    private boolean isBroken;
+    private DeviceStatus status;
     private Double consumption;
-    private boolean isDestroyed;
 
 
     public Device(Double consumption) {
-        this.isBroken = false;
+        this.status = DeviceStatus.OK;
         this.consumption = consumption;
-        this.isDestroyed = false;
     }
 
-    public Device(boolean isBroken, Double consumption, boolean isDestroyed) {
-        this.isBroken = isBroken;
+    public Device(Double consumption, DeviceStatus status) {
+        this.status = status;
         this.consumption = consumption;
-        this.isDestroyed = isDestroyed;
+
     }
 
     //Copy constructor (to avoid reference trap)
     public Device(Device source) {
-        setIsBroken(source.isBroken);
         setConsumption(source.consumption);
-        setIsDestroyed(source.isDestroyed);
+        setStatus(source.status);
     }
 
 
-    public boolean getIsBroken() {
-        return this.isBroken;
+    public DeviceStatus getStatus() {
+        return this.status;
     }
 
-    public void setIsBroken(boolean isBroken) {
-        this.isBroken = isBroken;
+    public void setStatus(DeviceStatus status) {
+        this.status = status;
     }
 
     public Double getConsumption() {
@@ -44,22 +43,29 @@ public class Device {
         this.consumption = consumption;
     }
 
-    public boolean getIsDestroyed() {
-        return this.isDestroyed;
-    }
-
-    public void setIsDestroyed(boolean isDestroyed) {
-        this.isDestroyed = isDestroyed;
-    }
-
-    public double use(int intensity, int time) {
-        setIsBroken(breakDown());
-        return this.consumption * intensity * time;
+    public double use(int intensity, int time) throws IllegalStateException {
+        isBrokenOrDestroyed();
+        double consumption = this.consumption * intensity * time;
+        if (breakDown())
+            setStatus(DeviceStatus.BROKEN);
+        return consumption;
     }
 
     private boolean breakDown() {
         return  ((Math.random() * 100) <= BREAKDOWN_PROB);
     }
 
+    public void isBrokenOrDestroyed() throws IllegalStateException {
+        if (isBroken() || isDestroyed()) {
+            throw new IllegalStateException("Broken device. Cannot activate this device.");
+        }
+    }
 
+    public boolean isBroken() {
+        return this.status.equals(DeviceStatus.BROKEN);
+    }
+
+    public boolean isDestroyed() {
+        return this.status.equals(DeviceStatus.DESTROYED);
+    }
 }

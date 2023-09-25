@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Random;
 
 import IronMan.enums.Color;
+import IronMan.enums.DeviceStatus;
 
 public class Armor {
     private Color primaryColor;
@@ -186,25 +187,8 @@ public class Armor {
         return true;
     }
 
-    public boolean checkDeviceState(String key) throws IllegalStateException {
-        if (devices.get(key).getIsBroken() || devices.get(key).getIsDestroyed()) {
-            throw new IllegalStateException("The " + key + " is broken. Cannot activate " + key + ".");
-        }
-        return false;
-    }
-
-    private boolean areBootsBroken() throws IllegalStateException {
-        return checkDeviceState(KEY_LEFTBOOT) || checkDeviceState(KEY_RIGHTBOOT);
-    }
-
-    private boolean areGlovesBroken() throws IllegalStateException {
-        return devices.get(KEY_RIGHTGLOVE).getIsBroken() || devices.get(KEY_LEFTGLOVE).getIsBroken();
-    }
-
     public boolean walk(int duration) throws IllegalStateException {
-        if (areBootsBroken()) {
-            throw new IllegalStateException("At least one boot is broken. Cannot perform walk action.");
-        }
+
         double energyConsumption = devices.get(KEY_RIGHTBOOT).use(BASIC_USE, duration);
         energyConsumption += devices.get(KEY_LEFTBOOT).use(BASIC_USE, duration);
         
@@ -212,9 +196,7 @@ public class Armor {
     }
 
     public boolean run(int duration) throws IllegalStateException {
-        if (areBootsBroken()) {
-            throw new IllegalStateException("At least one boot is broken. Cannot perform run action.");
-        }
+
         double energyConsumption = devices.get(KEY_RIGHTBOOT).use(NORMAL_USE, duration);
         energyConsumption += devices.get(KEY_LEFTBOOT).use(NORMAL_USE, duration);
 
@@ -222,9 +204,6 @@ public class Armor {
     }
 
     public boolean propel(int duration) throws IllegalStateException {
-        if (areBootsBroken()) {
-            throw new IllegalStateException("At least one boot is broken. Cannot perform propel action.");
-        }
         double energyConsumption = devices.get(KEY_RIGHTBOOT).use(INTENSIVE_USE, duration);
         energyConsumption += devices.get(KEY_LEFTBOOT).use(INTENSIVE_USE, duration);
 
@@ -232,9 +211,6 @@ public class Armor {
     }
 
     public boolean fly(int duration) throws IllegalStateException {
-        if (areBootsBroken() || areGlovesBroken()) {
-            throw new IllegalStateException("At least one boot or glove is broken. Cannot perform fly action.");
-        }
         double energyConsumption = devices.get(KEY_LEFTBOOT).use(INTENSIVE_USE, duration);
         energyConsumption += devices.get(KEY_RIGHTBOOT).use(INTENSIVE_USE, duration);
         energyConsumption += devices.get(KEY_RIGHTGLOVE).use(NORMAL_USE, duration);
@@ -244,9 +220,6 @@ public class Armor {
     }
 
     public boolean shootFromGloves(int duration) throws IllegalStateException {
-        if (areGlovesBroken()) {
-            throw new IllegalStateException("At least one glove is broken. Cannot perform shoot action.");
-        }
         double energyConsumption = devices.get(KEY_RIGHTGLOVE).use(INTENSIVE_USE, duration);
         energyConsumption += devices.get(KEY_LEFTGLOVE).use(INTENSIVE_USE, duration);
 
@@ -254,27 +227,18 @@ public class Armor {
     }
 
     public boolean readConsole(int duration) throws IllegalStateException {
-        if (devices.get("console").getIsBroken()) {
-            throw new IllegalStateException("The console is broken. Cannot perform read action.");
-        }
         double energyConsumption = devices.get(KEY_CONSOLE).use(BASIC_USE, duration);
 
         return updateReactor(energyConsumption);
     }
 
     public boolean speakThroughSynthesizer(int duration) throws IllegalStateException {
-        if (devices.get(KEY_SYNTHESIZER).getIsBroken()) {
-            throw new IllegalStateException("The synthesizer is broken. Cannot perform speak action.");
-        }
         double energyConsumption = devices.get(KEY_SYNTHESIZER).use(BASIC_USE, duration);
 
         return updateReactor(energyConsumption);
     }
 
     public boolean activateRadar(int duration) throws IllegalStateException {
-        if (devices.get(KEY_RADAR).getIsBroken()) {
-            throw new IllegalStateException("The radar is broken. Cannot activate radar.");
-        }
         double energyConsumption = devices.get(KEY_RADAR).use(BASIC_USE, duration);
 
         return updateReactor(energyConsumption);
@@ -303,29 +267,29 @@ public class Armor {
     }
 
     private boolean repair(Device device) throws IllegalStateException {
-        if (device.getIsDestroyed())
+        if (device.isDestroyed())
             throw new IllegalStateException("The device is destroyed. There is no way to fix it.");
         do {
             if (repairSucces()) {
-                device.setIsBroken(false);
+                device.setStatus(DeviceStatus.OK);
         }
             if (destroyOcurrance()) {
-                device.setIsDestroyed(true);
+                device.setStatus(DeviceStatus.DESTROYED);;
                 System.out.println("The device has been destroyed while attempting to fix it.");
                 return false;
             }
-        } while (device.getIsBroken());
+        } while (device.isBroken());
         
         return true;
     }
 
     public void scanArmor() {
         for (Map.Entry<String, Device> entry : devices.entrySet()) {
-            if (entry.getValue().getIsDestroyed()) {
+            if (entry.getValue().isDestroyed()) {
                 System.out.println(entry.getKey() + " is destroyed. There is no way to fix it.");
                 continue;
             }
-            if (entry.getValue().getIsBroken()) {
+            if (entry.getValue().isBroken()) {
                 System.out.println(entry.getKey() + " is broken.");
                 System.out.println("Trying to repair it...");
                 if (repair(entry.getValue())) {

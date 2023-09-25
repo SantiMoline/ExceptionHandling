@@ -57,5 +57,15 @@ public class Radar extends Device {
         }
     }
 
+    public ArrayList<Objective> getHostileObjectives() {
+        ArrayList<Objective> hostileObjectives = new ArrayList<>();
+
+        for (Objective objective : objectives) {
+            if (objective.getHostility())
+                hostileObjectives.add(objective);
+        }
+        return hostileObjectives;
+    }
+
 
 }
