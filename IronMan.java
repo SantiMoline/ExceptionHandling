@@ -13,7 +13,7 @@ public class IronMan {
         armor.showBatteryStatus();
         System.out.println(armor.getReactor());
         armor.showReactorStatus();
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 3; i++) {
             try {
                 System.out.println("Try: " + i);
                 System.out.println("Walkin...");
@@ -30,8 +30,8 @@ public class IronMan {
             }
         }
 
-        armor.activateRadar(10);
-        armor.showObjectives();
+        //armor.activateRadar(10);
+        //armor.showObjectives();
  
 
     }

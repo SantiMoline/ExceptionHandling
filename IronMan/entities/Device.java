@@ -69,6 +69,10 @@ public class Device {
         return this.status.equals(DeviceStatus.DESTROYED);
     }
 
+    public boolean isOk() {
+        return this.status.equals(DeviceStatus.OK);
+    }
+
     public void repair() {
         setStatus(DeviceStatus.OK);
     }
