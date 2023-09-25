@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Random;
 
 import IronMan.enums.Color;
-import IronMan.enums.DeviceStatus;
 
 public class Armor {
     private Color primaryColor;
@@ -271,10 +270,11 @@ public class Armor {
             throw new IllegalStateException("The device is destroyed. There is no way to fix it.");
         do {
             if (repairSucces()) {
-                device.setStatus(DeviceStatus.OK);
-        }
+                device.repair();
+                break;
+            }
             if (destroyOcurrance()) {
-                device.setStatus(DeviceStatus.DESTROYED);;
+                device.destroy();
                 System.out.println("The device has been destroyed while attempting to fix it.");
                 return false;
             }
